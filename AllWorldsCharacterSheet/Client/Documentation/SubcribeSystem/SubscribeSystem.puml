@@ -1,0 +1,28 @@
+﻿@startuml
+'https://plantuml.com/activity-diagram-beta
+
+floating note right
+  The OnUpdate() method will fist check the
+  SubscribeComponent before any other component.
+
+  When a component is changed, it will notify
+  all of the subcribers to that component.
+end note
+
+start
+:OnUpdate();
+if (DidComponentChange(SubscribeComponent)) then (yes)
+  :UpdateSubscribers(SubscribeComponent);
+else (no)
+endif
+
+repeat :Get next component in subscription;
+  if (component is SubscribeComponent) then (no)
+    if (DidComponentChange(component)) then (yes)
+      :UpdateSubscribers(component);
+    endif
+  endif
+repeat while (More subscriptions?) is (yes) not (no)
+stop
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml Character Stats Page Use Case Diagram
+skinparam linetype polyline
+left to right direction
+
+package Key {
+    !includesub ../../../../../DiagramIncludes.puml!NEW_USE_CASE_KEY
+}
+
+:Player:
+
+package "Character Stats Page" {
+    (View Attributes) NEW_USE_CASE_STYLE
+
+    :Player: ---> (View Attributes)
+}
+@enduml

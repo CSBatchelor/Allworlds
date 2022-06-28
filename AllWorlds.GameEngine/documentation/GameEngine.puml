@@ -1,0 +1,81 @@
+@startuml GameEngine
+
+interface IEntityPool <<interface>> {
+    +bool HasEntity(Entity entity)
+
+    +void AddEntityOnNextUpdate(Entity entity)
+    +void AddEntitiesOnNextUpdate(IEnumerable<Entity> entities)
+
+    +void RemoveEntityOnNextUpdate(Entity entity)
+    +void RemoveEntitiesOnNextUpdate(IEnumerable<Entity> entities)
+
+    +void Update()
+}
+IEntityPool "*" *-- "*" Entity: contains
+
+class Engine implements IEntityPool {
+    +Engine(IEnumerable<SystemBase> systems)
+    +Engine(IEnumerable<SystemBase> systems, IEnumerable<Entity> entities)
+    
+    +bool HasSystem<T>()
+    +bool HasSystem(Type systemType)
+
+    +void Update()
+    +void Update(string input)
+}
+Engine "0..1" *-- "1..*" SystemBase: contains & runs
+
+
+abstract class SystemBase {
+    #<<abstract>> Type[] RequiredComponents
+    +List<Entity> RegisteredEntities
+    
+    <<internal>>void BindEntityPool(IEntityPool entityPool)
+    
+    <<internal>> EntityIsRegistered(Entity entity)
+    <<internal>> void UpdateEntityRegistration(Entity entity)
+    #<<virtual>> void OnEntityRegistered(Entity entity)
+    #<<virtual>> void OnEntityUnregistered(Entity entity)
+    
+    #void DeleteEntity(Entity entity)
+    #void CreateEntity(Entity entity)
+    
+    <<internal>> void Run(string input)
+    #<<virtual>> void OnUpdate(string input)
+}
+SystemBase "*" *-- "*" Entity: registers & processes 
+SystemBase "*" *-- "1" IEntityPool: creates & removes entities
+SystemBase --> Component : Uses type for entity registration
+
+class Entity {
+    <<internal>> Entity()
+    <<internal>> Entity([NotNull] Dictionary<Type, List<Component>>? components)
+    
+    +string Id
+  
+    +bool HasComponent<T>() where T : Component
+    +bool HasComponent(Type componentType)
+    
+    +int CountComponent<T>() where T : Component
+    +int CountComponent(Type componentType)
+    
+    +T GetComponent<T>() where T : Component
+    +T GetComponent(Type componentType)
+    
+    +T GetComponents<T>() where T : Component
+    +T GetComponents(Type componentType)
+    
+    +void AddComponentOnNextUpdate(Component component)
+    
+    
+    <<internal>> void UpdateComponents(out bool componentsChanged
+}
+Entity "1" *-- "*" ComponentBase: consists of
+
+abstract class ComponentBase {
+    -Entity parentEntity
+    +bool AllowMultiple
+    +void Delete()
+}
+
+@enduml

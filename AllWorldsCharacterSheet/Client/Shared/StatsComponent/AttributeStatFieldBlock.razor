@@ -1,0 +1,66 @@
+﻿@typeparam TAttribute where TAttribute : Enum
+@typeparam TSkill where TSkill : Enum
+@typeparam TCombatSkill where TCombatSkill : Enum
+
+@using AllWorlds.Aeros.EighteenHundred.Components
+@using AllWorlds.Aeros.EighteenHundred.Library
+
+<div class='container'>
+	<dl>
+		<dt>
+			<label for=@aerosAttribute>@aerosAttribute!.ToString().ToUpper()</label>
+			<span class='small circle'>
+				<span class='value'>
+					<input id=@aerosAttribute value=@statsComponent!.Attributes[aerosAttribute].Level type="number" @oninput="UpdateAttribute" />
+				</span>
+			</span>
+		</dt>
+		@foreach (var skill in statsComponent!.Skills) {
+			@if (@skill.Value.AttributeEnum.CompareTo(aerosAttribute) == 0)
+			{
+				<dd>
+					<label for=@skill.Value.SkillEnum>@skill.Value.SkillEnum.ToString()</label>
+					<span class='small'>
+						<span class='value'>
+							<input id=@skill.Value.SkillEnum value=@skill.Value.Level type="number" @oninput=@(e => UpdateSkill(e, skill.Key))/>
+						</span>
+					</span>
+				</dd>
+			}
+		}
+	</dl>
+</div>
+
+@code {
+	[Parameter]
+	public TAttribute? aerosAttribute { get; set; }
+
+	[Parameter]
+	public StatsComponent<TAttribute, TSkill, TCombatSkill>? statsComponent { get; set; }
+
+	[Parameter]
+	public EventCallback<StatsComponent<TAttribute, TSkill, TCombatSkill>> statsComponentChanged { get; set; }
+
+	async Task UpdateAttribute(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int result)) {
+			var newAttributes = statsComponent!.Attributes.ToDictionary(
+				x => x.Key,
+				x => x.Key.CompareTo(aerosAttribute) == 0 ? x.Value with { Level = result } : x.Value );
+			await statsComponentChanged.InvokeAsync(statsComponent! with { Attributes = newAttributes });
+            StateHasChanged();
+		}
+	}
+	
+	async Task UpdateSkill(ChangeEventArgs e, TSkill aerosSkill)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int result)) {
+			var newSkills = statsComponent!.Skills.ToDictionary(
+				x => x.Key,
+				x => x.Key.CompareTo(aerosSkill) == 0 ? x.Value with { Level = result } : x.Value
+			);
+			await statsComponentChanged.InvokeAsync(statsComponent! with { Skills = newSkills });
+            StateHasChanged();
+		}
+	}
+}

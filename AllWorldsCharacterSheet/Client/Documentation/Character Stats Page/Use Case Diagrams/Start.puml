@@ -1,0 +1,9 @@
+@startuml Character Stats Page Use Case Diagram
+skinparam linetype polyline
+left to right direction
+
+:Player:
+
+package "Character Stats Page" {
+}
+@enduml

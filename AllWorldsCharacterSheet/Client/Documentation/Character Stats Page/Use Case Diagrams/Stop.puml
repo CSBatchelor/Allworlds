@@ -1,0 +1,45 @@
+@startuml Character Stats Page Use Case Diagram
+skinparam linetype polyline
+left to right direction
+
+:Player:
+:Game Master:
+
+package "Character Stats Page" {
+    :Player: ---> (View Attributes)
+    :Player: ---> (View Skills)
+    :Player: ---> (View Combat Skills)
+    :Player: ---> (View Experience)
+
+    (View Attributes) <--- :Game Master:
+    (View Skills) <--- :Game Master:
+    (View Combat Skills) <--- :Game Master:
+    (View Experience) <--- :Game Master:
+
+    rectangle "Player Only" {
+        :Player: ---> (Spend Experience)
+        (Spend Experience) <|- (Level Up Skill)
+        (Level Up Combat Skill) -|> (Spend Experience)
+
+        :Player: ---> (Roll Skill)
+        :Player: ---> (Roll Combat Skill)
+        (Roll Skill) <.. (Respond to Roll Prompt) : <<extend>>
+        (Roll Combat Skill) <.. (Respond to Roll Prompt) : <<extend>>
+    }
+
+    rectangle "Game Master Only" {
+        (Grant Experience) <--- :Game Master:
+        (Grant Experience) <|- (Attribute Specific Experience)
+        (Player Preferred Experience) -|> (Grant Experience)
+
+        (Request Roll) <--- :Game Master:
+        (Request Roll) <|-- (Specific Non-Combat Skill Roll)
+        (Combat Skill Roll) -|> (Request Roll)
+        (Combat Skill Roll) <|-- (Melee Defense Roll)
+        (Melee Attack Roll) --|> (Combat Skill Roll)
+        (Ranged Attack Roll) --|> (Combat Skill Roll)
+        (Combat Skill Roll) <|-- (Evasion Roll)
+        (Combat Skill Roll) <|- (Magic Attack Roll)
+    }
+}
+@enduml

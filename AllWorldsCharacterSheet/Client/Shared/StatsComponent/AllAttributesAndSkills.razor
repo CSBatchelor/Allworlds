@@ -1,0 +1,25 @@
+﻿@typeparam TAttribute where TAttribute : Enum
+@typeparam TSkill where TSkill : Enum
+@typeparam TCombatSkill where TCombatSkill : Enum
+
+@using AllWorlds.Aeros.EighteenHundred.Components
+@using AllWorlds.Aeros.EighteenHundred.Library
+
+<div>
+	@foreach (var aerosAttribute in statsComponent!.Attributes) {
+		<AttributeStatFieldBlock aerosAttribute=@aerosAttribute.Key @bind-statsComponent=@statsComponent />
+	}
+</div>
+
+@code {
+	private StatsComponent<TAttribute, TSkill, TCombatSkill>? _statsComponent;
+
+	[Parameter]
+	public EventCallback<StatsComponent<TAttribute, TSkill, TCombatSkill>?> statsComponentChanged { get; set; }
+
+	[Parameter]
+	public StatsComponent<TAttribute, TSkill, TCombatSkill>? statsComponent {
+		get => _statsComponent;
+		set => this.HandleIntermediateBind(ref _statsComponent, value, statsComponentChanged);
+	}
+}

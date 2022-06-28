@@ -1,0 +1,115 @@
+﻿@page "/fetchdata"
+@inject Entity PlayerEntity
+@using AllWorlds.Aeros.EighteenHundred.Components
+@using AllWorlds.Aeros.EighteenHundred.Library
+@using StatsComponent = AllWorlds.Aeros.EighteenHundred.Components.StatsComponent<AllWorlds.Aeros.EighteenHundred.Library.AerosStatEnums.Attributes, AllWorlds.Aeros.EighteenHundred.Library.AerosStatEnums.Skills, AllWorlds.Aeros.EighteenHundred.Library.AerosStatEnums.CombatSkills>;
+@using AllWorldsCharacterSheet.Client.Shared.StatsComponent
+@implements IDisposable
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (_mortalComponent == null)
+{
+	<p>
+		<em>Loading...</em>
+	</p>
+}
+else
+{
+	<AllAttributesAndSkills @bind-statsComponent=@statsComponent />
+}
+
+@code {
+	private MortalComponent? _mortalComponent;
+
+	private int CurrentDamage
+	{
+		get => _mortalComponent!.CurrentDamage;
+		set { PlayerEntity.UpdateComponentByType<MortalComponent>(mortalComponent => mortalComponent with { CurrentDamage = value }); }
+	}
+
+	private int MaxDamage
+	{
+		get => _mortalComponent!.MaxDamage;
+		set
+		{
+			MortalComponent Func(MortalComponent mortalComponent)
+			{
+				return mortalComponent with { MaxDamage = value };
+			}
+
+			PlayerEntity.UpdateComponentByType<MortalComponent>(Func);
+			if (_mortalComponent != null) _mortalComponent = Func(_mortalComponent);
+		}
+	}
+
+	private int CurrentStress
+	{
+		get => _mortalComponent!.CurrentStress;
+		set { PlayerEntity.UpdateComponentByType<MortalComponent>(mortalComponent => mortalComponent with { CurrentStress = value }); }
+	}
+
+	private int MaxStress
+	{
+		get => _mortalComponent!.MaxStress;
+		set
+		{
+			MortalComponent Func(MortalComponent mortalComponent)
+			{
+				return mortalComponent with { MaxStress = value };
+			}
+
+			PlayerEntity.UpdateComponentByType<MortalComponent>(Func);
+			if (_mortalComponent != null) _mortalComponent = Func(_mortalComponent);
+		}
+	}
+
+	private void OnMortalComponentChange(Entity entity, Component? oldComponent, Component? newComponent)
+	{
+		InvokeAsync(() =>
+		{
+			_mortalComponent = (MortalComponent) newComponent!;
+			StateHasChanged();
+		});
+	}
+
+	private StatsComponent? _statsComponent;
+	private StatsComponent statsComponent
+	{
+		get => _statsComponent!;
+		set
+		{
+			_statsComponent = value;
+			PlayerEntity.UpdateComponentByType<StatsComponent>(_ => _statsComponent);
+		}
+	}
+
+	private void OnStatsComponentChange(Entity entity, Component? oldComponent, Component? newComponent)
+	{
+		InvokeAsync(() =>
+		{
+			_statsComponent = (StatsComponent) newComponent!;
+			StateHasChanged();
+		});
+	}
+
+
+	protected override void OnInitialized()
+	{
+		_mortalComponent = PlayerEntity.GetComponentByType<MortalComponent>();
+		_statsComponent = PlayerEntity.GetComponentByType<StatsComponent>();
+		PlayerEntity.AddComponentOnNextUpdate(new SubscribeComponent(typeof(MortalComponent), OnMortalComponentChange));
+		PlayerEntity.AddComponentOnNextUpdate(new SubscribeComponent(typeof(StatsComponent), OnStatsComponentChange));
+		base.OnInitialized();
+	}
+
+	public void Dispose()
+	{
+		PlayerEntity.UpdateComponentByType<SubscribeComponent>(x => x.Unsubscribe(typeof(MortalComponent), OnMortalComponentChange));
+		PlayerEntity.UpdateComponentByType<SubscribeComponent>(x => x.Unsubscribe(typeof(StatsComponent), OnStatsComponentChange));
+	}
+}

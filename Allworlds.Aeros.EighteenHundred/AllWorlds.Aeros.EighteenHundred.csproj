@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>Nullable</WarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Repositories\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <None Remove="Repositories\**" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' != 'Release'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <Compile Remove="**\*.tests.cs" />
+    <Compile Remove="**\*.puml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="**\*.tests.cs">
+      <DependentUpon>$([System.String]::Copy(%(Filename)).Replace(".tests",".cs"))</DependentUpon>
+    </Compile>
+    <None Update="**/*.puml">
+      <DependentUpon>%(Filename).cs</DependentUpon>
+    </None>
+  </ItemGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\AllWorlds.GameEngine\AllWorlds.GameEngine.csproj" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <Folder Include="Documentation" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.17.2" />
+  </ItemGroup>
+</Project>

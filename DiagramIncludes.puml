@@ -1,0 +1,14 @@
+@startuml DiagramIncludes
+    !startsub NEW_USE_CASE_KEY
+    !define NEW_USE_CASE_STYLE #palegreen;line:green;text:green
+    usecase NewUsecase NEW_USE_CASE_STYLE as "
+        New Use Case
+        --
+        A use case
+        with this
+        style is new
+        to the system.
+        --
+    "
+    !endsub
+@enduml
